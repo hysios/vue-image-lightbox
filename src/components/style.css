@@ -93,7 +93,6 @@ img.vue-lb-modal-image {
   text-align: center;
 }
 
-
 .vue-lb-footer {
   box-sizing: border-box;
   color: white;
@@ -143,7 +142,7 @@ img.vue-lb-modal-image {
   background-position: center;
   background-size: cover;
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px hsla(0,0%,100%,.2);
+  box-shadow: inset 0 0 0 1px hsla(0, 0%, 100%, .2);
   cursor: pointer;
   display: inline-block;
   height: 50px;
@@ -244,38 +243,69 @@ img.vue-lb-modal-image {
 
 @media (min-width: 768px) {
   .vue-lb-arrow {
-      width: 70px;
+    width: 70px;
   }
 }
 
-.vue-lb-modal-image-transition-enter-active,
-.vue-lb-modal-image-transition-leave-active {
+.vue-lb-modal-image-transition-enter-active, .vue-lb-modal-image-transition-leave-active {
   transition: opacity .2s ease;
 }
 
-.vue-lb-modal-image-transition-enter,
-.vue-lb-modal-image-transition-leave-to {
+.vue-lb-modal-image-transition-enter, .vue-lb-modal-image-transition-leave-to {
   opacity: 0;
 }
 
-.vue-lb-modal-image-no-transition-enter-active,
-.vue-lb-modal-image-no-transition-leave-active {
+.vue-lb-modal-image-no-transition-enter-active, .vue-lb-modal-image-no-transition-leave-active {
   transition: none;
 }
 
-.vue-lb-modal-image-no-transition-enter,
-.vue-lb-modal-image-no-transition-leave-to {
+.vue-lb-modal-image-no-transition-enter, .vue-lb-modal-image-no-transition-leave-to {
   opacity: 0;
 }
 
-.vue-lb-content-transition-enter-active,
-.vue-lb-content-transition-leave-active {
+.vue-lb-content-transition-enter-active, .vue-lb-content-transition-leave-active {
   transition: opacity .2s ease;
 }
 
-.vue-lb-content-transition-enter,
-.vue-lb-content-transition-leave-to {
+.vue-lb-content-transition-enter, .vue-lb-content-transition-leave-to {
   opacity: 0;
 }
 
+.vue-lb-zoom {
+  position: fixed;
+  right: 100px;
+  top: 100px;
+  z-index: 10000;
+  width: 500px;
+  height: 500px;
+}
 
+.img-zoom-container {
+  position: relative;
+}
+
+.img-zoom-lens {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  /*set the size of the lens:*/
+  width: 40px;
+  height: 40px;
+}
+
+@media screen and (max-width: 1280px) {
+  .vue-lb-zoom {
+    right: 0px;
+    top: 100px;
+    width: 300px;
+    height: 300px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .vue-lb-zoom {
+    right: 0px;
+    top: 50px;
+    width: 250px;
+    height: 250px;
+  }
+}

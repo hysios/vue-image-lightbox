@@ -24,16 +24,12 @@
               <slot name="close">
                 <CloseIcon />
               </slot>
-            </button> <!-- .vue-lb-button-close -->
-          </div> <!-- .vue-lb-header -->
-          <div
-            class="vue-lb-figure"
-            @click.stop
-          >
-            <transition
-              mode="out-in"
-              :name="modalImageTransitionName"
-            >
+            </button>
+            <!-- .vue-lb-button-close -->
+          </div>
+          <!-- .vue-lb-header -->
+          <div class="vue-lb-figure" @click.stop>
+            <transition mode="out-in" :name="modalImageTransitionName">
               <img
                 v-if="media[select].type !== 'video'"
                 :key="media[select].src"
@@ -45,7 +41,9 @@
                 :srcset="media[select].srcset || ''"
                 class="vue-lb-modal-image"
                 :alt="media[select].caption"
-              >
+                @mouseover="mouseOver"
+                @mouseout="mouseOut"
+              />
               <video
                 v-else
                 ref="video"
@@ -60,7 +58,7 @@
                   :key="source.src"
                   :src="source.src"
                   :type="source.type"
-                >
+                />
               </video>
             </transition>
 
@@ -74,26 +72,18 @@
 
             <div class="vue-lb-footer">
               <div class="vue-lb-footer-info" />
-              <div
-                class="vue-lb-footer-count"
-                v-show="showFooterCount"
-              >
-                <slot
-                  name="footer"
-                  :current="select + 1"
-                  :total="media.length"
-                >
+              <div class="vue-lb-footer-count" v-show="showFooterCount">
+                <slot name="footer" :current="select + 1" :total="media.length">
                   {{ select + 1 }} / {{ media.length }}
                 </slot>
               </div>
             </div>
           </div>
-        </div> <!-- .vue-lb-content -->
+        </div>
+        <div class="vue-lb-zoom" ref="zoom"></div>
+        <!-- .vue-lb-content -->
         <div class="vue-lb-thumbnail-wrapper">
-          <div
-            v-if="showThumbs"
-            class="vue-lb-thumbnail"
-          >
+          <div v-if="showThumbs" class="vue-lb-thumbnail">
             <button
               v-if="media.length > 1"
               type="button"
@@ -109,15 +99,16 @@
             <div
               v-for="(image, index) in imagesThumb"
               v-show="index >= thumbIndex.begin && index <= thumbIndex.end"
-              :key="typeof image.src === 'string' ? `${image.src}${index}` : index"
+              :key="
+                typeof image.src === 'string' ? `${image.src}${index}` : index
+              "
               v-lazy:background-image="image"
-              :class="'vue-lb-modal-thumbnail' + (select === index ? '-active' : '')"
+              :class="
+                'vue-lb-modal-thumbnail' + (select === index ? '-active' : '')
+              "
               @click.stop="showImage(index)"
             >
-              <slot
-                v-if="image.type"
-                name="videoIcon"
-              >
+              <slot v-if="image.type" name="videoIcon">
                 <VideoIcon />
               </slot>
             </div>
@@ -133,7 +124,8 @@
                 <RightArrowIcon />
               </slot>
             </button>
-          </div> <!-- .vue-lb-thumbnail -->
+          </div>
+          <!-- .vue-lb-thumbnail -->
         </div>
         <button
           v-if="media.length > 1"
@@ -158,21 +150,22 @@
             <RightArrowIcon />
           </slot>
         </button>
-      </div> <!-- .vue-lb-container -->
+      </div>
+      <!-- .vue-lb-container -->
     </transition>
   </div>
 </template>
 
 <script>
-import LeftArrowIcon from './LeftArrowIcon'
-import RightArrowIcon from './RightArrowIcon'
-import CloseIcon from './CloseIcon'
-import VideoIcon from './VideoIcon'
+import LeftArrowIcon from "./LeftArrowIcon";
+import RightArrowIcon from "./RightArrowIcon";
+import CloseIcon from "./CloseIcon";
+import VideoIcon from "./VideoIcon";
 
-let Hammer
+let Hammer;
 
-if (typeof window !== 'undefined') {
-  Hammer = require('hammerjs')
+if (typeof window !== "undefined") {
+  Hammer = require("hammerjs");
 }
 
 export default {
@@ -237,7 +230,7 @@ export default {
 
     siteLoading: {
       type: String,
-      default: '',
+      default: "",
     },
 
     showCaption: {
@@ -252,27 +245,32 @@ export default {
 
     closeText: {
       type: String,
-      default: 'Close (Esc)',
+      default: "Close (Esc)",
     },
 
     previousText: {
       type: String,
-      default: 'Previous',
+      default: "Previous",
     },
 
     nextText: {
       type: String,
-      default: 'Next',
+      default: "Next",
     },
 
     previousThumbText: {
       type: String,
-      default: 'Previous',
+      default: "Previous",
     },
 
     nextThumbText: {
       type: String,
-      default: 'Next',
+      default: "Next",
+    },
+
+    zoomImage: {
+      type: String,
+      default: "",
     },
   },
 
@@ -281,30 +279,30 @@ export default {
       select: this.startAt,
       lightBoxOn: this.showLightBox,
       timer: null,
-      modalImageTransitionName: 'vue-lb-modal-image-no-transition',
-    }
+      modalImageTransitionName: "vue-lb-modal-image-no-transition",
+    };
   },
 
   computed: {
     thumbIndex() {
-      const halfDown = Math.floor(this.nThumbs / 2)
+      const halfDown = Math.floor(this.nThumbs / 2);
 
       if (this.select >= halfDown && this.select < this.media.length - halfDown)
         return {
           begin: this.select - halfDown + (1 - (this.nThumbs % 2)),
           end: this.select + halfDown,
-        }
+        };
 
       if (this.select < halfDown)
         return {
           begin: 0,
           end: this.nThumbs - 1,
-        }
+        };
 
       return {
         begin: this.media.length - this.nThumbs,
         end: this.media.length - 1,
-      }
+      };
     },
 
     imagesThumb() {
@@ -314,142 +312,249 @@ export default {
           type,
           loading: this.siteLoading,
           error: this.siteLoading,
-        }))
+        }));
       }
 
       return this.media.map(({ thumb, type }) => ({
         src: thumb,
         type,
-      }))
-    }
+      }));
+    },
   },
 
   watch: {
     lightBoxOn(value) {
       if (document != null) {
-        this.onToggleLightBox(value)
+        this.onToggleLightBox(value);
       }
     },
 
     select() {
-      this.$emit('onImageChanged', this.select)
+      this.$emit("onImageChanged", this.select);
 
       if (this.select >= this.media.length - this.lengthToLoadMore - 1)
-        this.$emit('onLoad')
+        this.$emit("onLoad");
 
-      if (this.select === this.media.length - 1)
-        this.$emit('onLastIndex')
+      if (this.select === this.media.length - 1) this.$emit("onLastIndex");
 
-      if (this.select === 0)
-        this.$emit('onFirstIndex')
+      if (this.select === 0) this.$emit("onFirstIndex");
 
-      if (this.select === this.startAt)
-        this.$emit('onStartIndex')
+      if (this.select === this.startAt) this.$emit("onStartIndex");
     },
   },
 
   mounted() {
     if (this.autoPlay) {
       this.timer = setInterval(() => {
-        this.nextImage()
-      }, this.autoPlayTime)
+        this.nextImage();
+      }, this.autoPlayTime);
     }
 
-    this.onToggleLightBox(this.lightBoxOn)
+    this.onToggleLightBox(this.lightBoxOn);
 
     if (this.$refs.container) {
-      const hammer = new Hammer(this.$refs.container)
+      const hammer = new Hammer(this.$refs.container);
 
-      hammer.on('swiperight', () => {
-        this.previousImage()
-      })
+      hammer.on("swiperight", () => {
+        this.previousImage();
+      });
 
-      hammer.on('swipeleft', () => {
-        this.nextImage()
-      })
+      hammer.on("swipeleft", () => {
+        this.nextImage();
+      });
     }
   },
 
   beforeDestroy() {
-    document.removeEventListener('keydown', this.addKeyEvent)
+    document.removeEventListener("keydown", this.addKeyEvent);
 
     if (this.autoPlay) {
-      clearInterval(this.timer)
+      clearInterval(this.timer);
     }
   },
 
   methods: {
     onLightBoxOpen() {
-      this.$emit('onOpened')
+      this.$emit("onOpened");
 
       if (this.disableScroll) {
-        document.querySelector('html').classList.add('no-scroll')
+        document.querySelector("html").classList.add("no-scroll");
       }
-      document.querySelector('body').classList.add('vue-lb-open')
-      document.addEventListener('keydown', this.addKeyEvent)
+      document.querySelector("body").classList.add("vue-lb-open");
+      document.addEventListener("keydown", this.addKeyEvent);
 
       if (this.$refs.video && this.$refs.video.autoplay) {
-        this.$refs.video.play()
+        this.$refs.video.play();
       }
     },
 
     onLightBoxClose() {
-      this.$emit('onClosed')
+      this.$emit("onClosed");
 
       if (this.disableScroll) {
-        document.querySelector('html').classList.remove('no-scroll')
+        document.querySelector("html").classList.remove("no-scroll");
       }
 
-      document.querySelector('body').classList.remove('vue-lb-open')
-      document.removeEventListener('keydown', this.addKeyEvent)
+      document.querySelector("body").classList.remove("vue-lb-open");
+      document.removeEventListener("keydown", this.addKeyEvent);
 
       if (this.$refs.video) {
-        this.$refs.video.pause()
-        this.$refs.video.currentTime = 0
+        this.$refs.video.pause();
+        this.$refs.video.currentTime = 0;
       }
     },
 
     onToggleLightBox(value) {
       if (value) {
-        this.onLightBoxOpen()
+        this.onLightBoxOpen();
       } else {
-        this.onLightBoxClose()
+        this.onLightBoxClose();
       }
     },
 
     showImage(index) {
-      this.$set(this, 'select', index)
-      this.$set(this, 'lightBoxOn', true)
+      this.$set(this, "select", index);
+      this.$set(this, "lightBoxOn", true);
     },
 
     addKeyEvent(event) {
-      if (event.keyCode === 37) this.previousImage() // left arrow
-      if (event.keyCode === 39) this.nextImage() // right arrow
-      if (event.keyCode === 27) this.closeLightBox() // esc
+      if (event.keyCode === 37) this.previousImage(); // left arrow
+      if (event.keyCode === 39) this.nextImage(); // right arrow
+      if (event.keyCode === 27) this.closeLightBox(); // esc
     },
 
     closeLightBox() {
-      if (!this.closable) return
-      this.$set(this, 'lightBoxOn', false)
+      if (!this.closable) return;
+      this.$set(this, "lightBoxOn", false);
     },
 
     nextImage() {
-      this.$set(this, 'select', (this.select + 1) % this.media.length)
+      this.$set(this, "select", (this.select + 1) % this.media.length);
     },
 
     previousImage() {
-      this.$set(this, 'select', (this.select + this.media.length - 1) % this.media.length)
+      this.$set(
+        this,
+        "select",
+        (this.select + this.media.length - 1) % this.media.length
+      );
     },
 
     enableImageTransition() {
-      this.$set(this, 'modalImageTransitionName', 'vue-lb-modal-image-transition')
+      this.$set(
+        this,
+        "modalImageTransitionName",
+        "vue-lb-modal-image-transition"
+      );
     },
 
     disableImageTransition() {
-      this.$set(this, 'modalImageTransitionName', 'vue-lb-modal-image-no-transition')
+      this.$set(
+        this,
+        "modalImageTransitionName",
+        "vue-lb-modal-image-no-transition"
+      );
+    },
+
+    mouseOver(e) {
+      console.log("over");
+      if (!e.target.data) {
+        e.target.data = { zoom: true };
+        this.imageZoom(e.target, this.$refs.zoom);
+      }
+    },
+
+    mouseOut(e) {
+      console.log("out", e.target);
+      if (e.target.data) {
+        e.target.data = undefined;
+        this.unimageZoom(e.target, this.$refs.zoom);
+      }
+    },
+    imageZoom(img, result) {
+      var lens,
+        cx,
+        cy,
+        zoomWidth = 100,
+        zoomHeight = 100;
+
+      result.style.display = "block";
+      /* Create lens: */
+      // lens = document.createElement("DIV");
+      // lens.setAttribute("class", "img-zoom-lens");
+      /* Insert lens: */
+      // img.parentElement.insertBefore(lens, img);
+      /* Calculate the ratio between result DIV and lens: */
+      // cx = result.offsetWidth / lens.offsetWidth;
+      // cy = result.offsetHeight / lens.offsetHeight;
+      cx = result.offsetWidth / zoomWidth;
+      cy = result.offsetHeight / zoomHeight;
+
+      /* Set background properties for the result DIV */
+      result.style.backgroundImage = "url('" + img.src + "')";
+      result.style.backgroundSize =
+        img.width * cx + "px " + img.height * cy + "px";
+      /* Execute a function when someone moves the cursor over the image, or the lens: */
+      // lens.addEventListener("mousemove", moveLens);
+      img.addEventListener("mousemove", moveLens);
+      /* And also for touch screens: */
+      // lens.addEventListener("touchmove", moveLens);
+      img.addEventListener("touchmove", moveLens);
+      function moveLens(e) {
+        var pos, x, y;
+        /* Prevent any other actions that may occur when moving over the image */
+        e.preventDefault();
+        /* Get the cursor's x and y positions: */
+        pos = getCursorPos(e);
+        /* Calculate the position of the lens: */
+        // x = pos.x - lens.offsetWidth / 2;
+        // y = pos.y - lens.offsetHeight / 2;
+
+        x = pos.x - zoomWidth / 2;
+        y = pos.y - zoomHeight / 2;
+        /* Prevent the lens from being positioned outside the image: */
+        if (x > img.width - zoomWidth) {
+          x = img.width - zoomWidth;
+        }
+        if (x < 0) {
+          x = 0;
+        }
+        if (y > img.height - zoomHeight) {
+          y = img.height - zoomHeight;
+        }
+        if (y < 0) {
+          y = 0;
+        }
+        /* Set the position of the lens: */
+        // lens.style.left = x + "px";
+        // lens.style.top = y + "px";
+        /* Display what the lens "sees": */
+        result.style.backgroundPosition = "-" + x * cx + "px -" + y * cy + "px";
+      }
+      function getCursorPos(e) {
+        var a,
+          x = 0,
+          y = 0;
+        e = e || window.event;
+        /* Get the x and y positions of the image: */
+        a = img.getBoundingClientRect();
+        /* Calculate the cursor's x and y coordinates, relative to the image: */
+        x = e.pageX - a.left;
+        y = e.pageY - a.top;
+        /* Consider any page scrolling: */
+        x = x - window.pageXOffset;
+        y = y - window.pageYOffset;
+        return { x: x, y: y };
+      }
+    },
+    unimageZoom(img, result) {
+      result.style.display = "none";
+      // img.parentElement.querySelector(".img-zoom-lens").remove();
     },
   },
-}
+};
 </script>
 
 <style src="./style.css"></style>
+<style scoped>
+</style>
