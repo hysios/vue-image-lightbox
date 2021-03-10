@@ -276,8 +276,8 @@ img.vue-lb-modal-image {
   right: 100px;
   top: 100px;
   z-index: 10000;
-  width: 500px;
-  height: 500px;
+  width: 400px;
+  height: 400px;
 }
 
 .img-zoom-container {

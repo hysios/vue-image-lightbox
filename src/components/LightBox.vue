@@ -168,6 +168,9 @@ if (typeof window !== "undefined") {
   Hammer = require("hammerjs");
 }
 
+const zoomWidth = 100,
+  zoomHeight = 100;
+
 export default {
   components: {
     LeftArrowIcon,
@@ -467,16 +470,36 @@ export default {
     mouseOut(e) {
       console.log("out", e.target);
       if (e.target.data) {
-        e.target.data = undefined;
-        this.unimageZoom(e.target, this.$refs.zoom);
+        let pos = this.getCursorPos(e, e.target),
+          x = pos.x,
+          y = pos.y,
+          img = e.target;
+
+        console.log(x, y, img.offsetWidth, img.offsetHeight);
+        if (x >= 0 && x < img.offsetWidth && y >= 0 && y < img.offsetHeight) {
+        } else {
+          e.target.data = undefined;
+          this.unimageZoom(e.target, this.$refs.zoom);
+        }
       }
     },
+    getCursorPos(e, img) {
+      var a,
+        x = 0,
+        y = 0;
+      e = e || window.event;
+      /* Get the x and y positions of the image: */
+      a = img.getBoundingClientRect();
+      /* Calculate the cursor's x and y coordinates, relative to the image: */
+      x = e.pageX - a.left;
+      y = e.pageY - a.top;
+      /* Consider any page scrolling: */
+      x = x - window.pageXOffset;
+      y = y - window.pageYOffset;
+      return { x: x, y: y };
+    },
     imageZoom(img, result) {
-      var lens,
-        cx,
-        cy,
-        zoomWidth = 100,
-        zoomHeight = 100;
+      var lens, cx, cy;
 
       result.style.display = "block";
       /* Create lens: */
@@ -500,6 +523,23 @@ export default {
       /* And also for touch screens: */
       // lens.addEventListener("touchmove", moveLens);
       img.addEventListener("touchmove", moveLens);
+      result.addEventListener("mouseover", adjustPos);
+
+      function getCursorPos(e) {
+        var a,
+          x = 0,
+          y = 0;
+        e = e || window.event;
+        /* Get the x and y positions of the image: */
+        a = img.getBoundingClientRect();
+        /* Calculate the cursor's x and y coordinates, relative to the image: */
+        x = e.pageX - a.left;
+        y = e.pageY - a.top;
+        /* Consider any page scrolling: */
+        x = x - window.pageXOffset;
+        y = y - window.pageYOffset;
+        return { x: x, y: y };
+      }
       function moveLens(e) {
         var pos, x, y;
         /* Prevent any other actions that may occur when moving over the image */
@@ -531,25 +571,22 @@ export default {
         /* Display what the lens "sees": */
         result.style.backgroundPosition = "-" + x * cx + "px -" + y * cy + "px";
       }
-      function getCursorPos(e) {
-        var a,
-          x = 0,
-          y = 0;
-        e = e || window.event;
-        /* Get the x and y positions of the image: */
-        a = img.getBoundingClientRect();
-        /* Calculate the cursor's x and y coordinates, relative to the image: */
-        x = e.pageX - a.left;
-        y = e.pageY - a.top;
-        /* Consider any page scrolling: */
-        x = x - window.pageXOffset;
-        y = y - window.pageYOffset;
-        return { x: x, y: y };
+
+      function adjustPos(e) {
+        let zoom = e.target,
+          style = window.getComputedStyle(zoom);
+        if (style.left == "" || style.left == "auto") {
+          zoom.style.left = style.right;
+          zoom.style.right = "auto";
+        } else {
+          zoom.style.right = style.left;
+          zoom.style.left = "auto";
+        }
       }
     },
+
     unimageZoom(img, result) {
       result.style.display = "none";
-      // img.parentElement.querySelector(".img-zoom-lens").remove();
     },
   },
 };
